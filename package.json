@@ -1,0 +1,96 @@
+{
+  "name": "vscode-shandy-sqlfmt",
+  "displayName": "shandy-sqlfmt",
+  "version": "0.1.0",
+  "description": "%extension.description%",
+  "icon": "images/icon.png",
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onLanguage:sql",
+    "onLanguage:jinja-sql",
+    "workspaceContains:mspythonconfig.json",
+    "workspaceContains:pyproject.toml",
+    "workspaceContains:Pipfile",
+    "workspaceContains:setup.py",
+    "workspaceContains:requirements.txt"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "shandy-sqlfmt.formatWorkspace",
+        "title": "%command.formatWorkspace%"
+      }
+    ],
+    "configuration": {
+      "title": "shandy-sqlfmt",
+      "properties": {
+        "shandy-sqlfmt.path": {
+          "scope": "resource",
+          "description": "%settings.path.description%",
+          "type": "string",
+          "default": null
+        },
+        "shandy-sqlfmt.args": {
+          "scope": "resource",
+          "description": "%settings.args.description%",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "languages": [
+      {
+        "id": "sql",
+        "extensions": [
+          ".sql"
+        ]
+      },
+      {
+        "id": "jinja-sql",
+        "extensions": [
+          ".sql",
+          ".sql.j2",
+          ".sql.jinja",
+          ".sql.jinja2"
+        ]
+      }
+    ]
+  },
+  "scripts": {
+    "watch": "rimraf out && tsc -watch -p ./",
+    "esbuild-base": "rimraf out && esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --keep-names --platform=node",
+    "esbuild": "npm run -S esbuild-base -- --sourcemap",
+    "esbuild-watch": "npm run -S esbuild-base -- --sourcemap --watch",
+    "lint": "eslint src --ext ts",
+    "fix": "eslint src --ext ts --fix",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "vsce publish"
+  },
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "keywords": [
+    "sqlfmt",
+    "shandy-sqlfmt",
+    "dbt"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@vscode/python-extension": "^1.0.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.4",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.2",
+    "@typescript-eslint/parser": "^6.13.2",
+    "esbuild": "^0.19.8",
+    "eslint": "^8.55.0",
+    "prettier": "^3.1.0",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.3",
+    "vsce": "^2.15.0"
+  }
+}

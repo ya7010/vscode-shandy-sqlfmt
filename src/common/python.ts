@@ -1,0 +1,40 @@
+import * as vscode from "vscode";
+
+import { PythonExtension } from "@vscode/python-extension";
+
+export interface IInterpreterDetails {
+  path?: string[];
+  resource?: vscode.Uri;
+}
+
+async function activateExtension() {
+  const extension = vscode.extensions.getExtension("ms-python.python");
+  if (extension) {
+    if (!extension.isActive) {
+      await extension.activate();
+    }
+  }
+  return extension;
+}
+
+let _api: PythonExtension | undefined;
+async function getPythonExtensionAPI(): Promise<PythonExtension | undefined> {
+  if (!_api) {
+    const extension = await activateExtension();
+    _api = extension?.exports;
+  }
+  return _api;
+}
+
+export async function getInterpreterDetails(
+  resource?: vscode.Uri
+): Promise<IInterpreterDetails> {
+  const api = await getPythonExtensionAPI();
+  const environment = await api?.environments.resolveEnvironment(
+    api?.environments.getActiveEnvironmentPath(resource)
+  );
+  if (environment?.executable.uri) {
+    return { path: [environment?.executable.uri.fsPath], resource };
+  }
+  return { path: undefined, resource };
+}
