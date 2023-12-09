@@ -2,12 +2,7 @@ import * as vscode from "vscode";
 import { spawn } from "child_process";
 import { getInterpreterDetails } from "../common/python";
 import { getSqlFmtArgs, getSqlFmtPath } from "../common/settings";
-import {
-  traceInfo,
-  traceVerbose,
-  traceError,
-  traceLog,
-} from "../common/logging";
+import { traceInfo, traceError, traceLog } from "../common/logging";
 
 export class SqlfmtFormatProvider
   implements vscode.DocumentFormattingEditProvider
@@ -58,7 +53,9 @@ export class SqlfmtFormatProvider
 
     traceLog(`Execute: "${[command, ...args].join(" ")}"`);
 
-    const commandProcess = spawn(command, args);
+    const commandProcess = spawn(command, args, {
+      cwd: workspaceFolder?.uri.fsPath,
+    });
 
     if (commandProcess.pid) {
       let stdoutBuffer = "";
