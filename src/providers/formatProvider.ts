@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { exec } from "child_process";
+import { spawn } from "child_process";
 import { getInterpreterDetails } from "../common/python";
 import { getSqlFmtArgs, getSqlFmtPath } from "../common/settings";
 
@@ -45,17 +45,41 @@ export class SqlfmtFormatProvider
       workspaceFolder?.uri
     );
 
-    const command = [
-      getSqlFmtPath(workspaceFolder, interpreterDetails?.path),
+    const command = getSqlFmtPath(workspaceFolder, interpreterDetails?.path);
+    const args = [
       ...getSqlFmtArgs(workspaceFolder, interpreterDetails?.path),
       ...commandArgs,
-    ].join(" ");
+    ];
 
-    this.outputChannel.appendLine(`Execute: "${command}"`);
-    exec(command, (err, stdout, stderr) => {
-      if (stderr) {
-        this.outputChannel.appendLine(stderr);
-      }
-    });
+    this.outputChannel.appendLine(`Execute: "${[command, ...args].join(" ")}"`);
+
+    const commandProcess = spawn(command, args);
+
+    if (commandProcess.pid) {
+      let stdoutBuffer = "";
+      let stderrBuffer = "";
+
+      commandProcess.stdout!.on(
+        "data",
+        (chunk) => (stdoutBuffer += chunk.toString())
+      );
+      commandProcess.stderr!.on(
+        "data",
+        (chunk) => (stderrBuffer += chunk.toString())
+      );
+
+      commandProcess.once("close", () => {
+        if (stdoutBuffer) {
+          this.outputChannel.appendLine(stderrBuffer);
+        }
+        if (stderrBuffer) {
+          this.outputChannel.appendLine(stderrBuffer);
+        }
+      });
+
+      commandProcess.once("error", (error) => {
+        this.outputChannel.appendLine(`Error: ${error}`);
+      });
+    }
   }
 }
