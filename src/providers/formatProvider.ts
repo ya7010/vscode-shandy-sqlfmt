@@ -2,11 +2,17 @@ import * as vscode from "vscode";
 import { spawn } from "child_process";
 import { getInterpreterDetails } from "../common/python";
 import { getSqlFmtArgs, getSqlFmtPath } from "../common/settings";
+import {
+  traceInfo,
+  traceVerbose,
+  traceError,
+  traceLog,
+} from "../common/logging";
 
 export class SqlfmtFormatProvider
   implements vscode.DocumentFormattingEditProvider
 {
-  constructor(private outputChannel: vscode.OutputChannel) {}
+  constructor() {}
 
   async provideDocumentFormattingEdits(
     document: vscode.TextDocument
@@ -15,7 +21,7 @@ export class SqlfmtFormatProvider
   }
 
   async formatFile(document: vscode.TextDocument): Promise<vscode.TextEdit[]> {
-    this.outputChannel.appendLine(`Formatting "${document.fileName}" file`);
+    traceInfo(`Formatting "${document.fileName}" file`);
 
     await this.executeSqlfmt(
       vscode.workspace.getWorkspaceFolder(document.uri),
@@ -27,9 +33,8 @@ export class SqlfmtFormatProvider
 
   async formatWorkspace(document: vscode.TextDocument) {
     const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
-    this.outputChannel.appendLine(
-      `Formatting "${workspaceFolder?.name}" workspace`
-    );
+    traceInfo(`Formatting "${workspaceFolder?.name}" workspace`);
+
     if (!workspaceFolder) {
       return;
     }
@@ -51,7 +56,7 @@ export class SqlfmtFormatProvider
       ...commandArgs,
     ];
 
-    this.outputChannel.appendLine(`Execute: "${[command, ...args].join(" ")}"`);
+    traceVerbose(`Execute: "${[command, ...args].join(" ")}"`);
 
     const commandProcess = spawn(command, args);
 
@@ -70,15 +75,15 @@ export class SqlfmtFormatProvider
 
       commandProcess.once("close", () => {
         if (stdoutBuffer) {
-          this.outputChannel.appendLine(stderrBuffer);
+          traceLog(stdoutBuffer);
         }
         if (stderrBuffer) {
-          this.outputChannel.appendLine(stderrBuffer);
+          traceLog(stderrBuffer);
         }
       });
 
       commandProcess.once("error", (error) => {
-        this.outputChannel.appendLine(`Error: ${error}`);
+        traceError(error);
       });
     }
   }

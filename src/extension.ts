@@ -1,11 +1,16 @@
 import * as vscode from "vscode";
 import { SqlfmtFormatProvider } from "./providers/formatProvider";
+import { registerLogger, traceInfo } from "./common/logging";
 
 export async function activate(context: vscode.ExtensionContext) {
-  const outputChannel = vscode.window.createOutputChannel("shandy-sqlfmt");
-  outputChannel.appendLine("✨ shandy-sqlfmt is now active! ✨");
+  const outputChannel = vscode.window.createOutputChannel("shandy-sqlfmt", {
+    log: true,
+  });
+  context.subscriptions.push(outputChannel, registerLogger(outputChannel));
 
-  const formatProvider = new SqlfmtFormatProvider(outputChannel);
+  traceInfo("✨ shandy-sqlfmt is now active! ✨");
+
+  const formatProvider = new SqlfmtFormatProvider();
   for (const language of ["sql", "jinja-sql"]) {
     vscode.languages.registerDocumentFormattingEditProvider(
       { scheme: "file", language },
