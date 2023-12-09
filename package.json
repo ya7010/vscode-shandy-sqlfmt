@@ -79,6 +79,7 @@
     "esbuild-base": "rimraf out && esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --keep-names --platform=node",
     "esbuild": "npm run -S esbuild-base -- --sourcemap",
     "esbuild-watch": "npm run -S esbuild-base -- --sourcemap --watch",
+    "tsc": "tsc --noEmit",
     "lint": "eslint src --ext ts",
     "fix": "eslint src --ext ts --fix",
     "test": "echo \"Error: no test specified\" && exit 1",
