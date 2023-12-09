@@ -2,5 +2,5 @@
     "extension.description": "A auto formatter for SQL files using shandy-sqlfmt",
     "command.formatWorkspace": "shandy-sqlfmt: Format Workspace",
     "settings.args.description": "Additional arguments to pass to `sqlfmt`",
-    "settings.path.description": "Path to `sqlfmt`. If not set, it will look on your PATH"
+    "settings.path.description": "Path to `sqlfmt`. If not set, it will look on your workspace path and your PATH"
 }
