@@ -1,6 +1,6 @@
 {
     "extension.description": "A auto formatter for SQL files using shandy-sqlfmt",
     "command.formatWorkspace": "shandy-sqlfmt: Format Workspace",
-    "settings.args.description": "Arguments passed to Black to format Python files. Each argument should be provided as a separate string in the array. \n Example: \n `\"black-formatter.args\" = [\"--config\", \"<file>\"]`",
+    "settings.args.description": "Additional arguments to pass to `sqlfmt`",
     "settings.path.description": "Path to `sqlfmt`. If not set, it will look on your PATH"
 }
