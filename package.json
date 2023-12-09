@@ -23,12 +23,7 @@
   ],
   "activationEvents": [
     "onLanguage:sql",
-    "onLanguage:jinja-sql",
-    "workspaceContains:mspythonconfig.json",
-    "workspaceContains:pyproject.toml",
-    "workspaceContains:Pipfile",
-    "workspaceContains:setup.py",
-    "workspaceContains:requirements.txt"
+    "onLanguage:jinja-sql"
   ],
   "contributes": {
     "commands": [
