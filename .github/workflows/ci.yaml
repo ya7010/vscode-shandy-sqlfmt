@@ -15,6 +15,6 @@ jobs:
         with:
           node-version: 16
       - name: Install dependencies
-        run: npm run ci
+        run: npm ci
       - name: Run checks
-        run: npm run lint && npm run tcs
+        run: npm run lint && npm run tsc
