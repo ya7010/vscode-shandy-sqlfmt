@@ -83,6 +83,7 @@
     "lint": "eslint src --ext ts",
     "fix": "eslint src --ext ts --fix",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "package": "vsce package",
     "deploy": "vsce publish"
   },
   "dependencies": {
