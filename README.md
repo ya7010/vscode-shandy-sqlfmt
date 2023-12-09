@@ -5,3 +5,5 @@
 [![Actions status](https://github.com/yassun7010/vscode-shandy-sqlfmt/workflows/CI/badge.svg)](https://github.com/yassun7010/vscode-shandy-sqlfmt/actions)
 
 A Visual Studio Code extension for [shandy-sqlfmt](https://github.com/tconbeer/sqlfmt).
+
+![icon](images/icon.png)
