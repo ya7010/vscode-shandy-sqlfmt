@@ -5,6 +5,17 @@
   "description": "%extension.description%",
   "icon": "images/icon.png",
   "main": "./out/extension.js",
+  "preview": true,
+  "publisher": "yassun7010",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "keywords": [
+    "sqlfmt",
+    "shandy-sqlfmt",
+    "dbt"
+  ],
   "activationEvents": [
     "onLanguage:sql",
     "onLanguage:jinja-sql",
@@ -68,16 +79,6 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "vsce publish"
   },
-  "engines": {
-    "vscode": "^1.74.0"
-  },
-  "keywords": [
-    "sqlfmt",
-    "shandy-sqlfmt",
-    "dbt"
-  ],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@vscode/python-extension": "^1.0.5"
   },
