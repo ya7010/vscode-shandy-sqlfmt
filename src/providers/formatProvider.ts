@@ -56,7 +56,7 @@ export class SqlfmtFormatProvider
       ...commandArgs,
     ];
 
-    traceVerbose(`Execute: "${[command, ...args].join(" ")}"`);
+    traceLog(`Execute: "${[command, ...args].join(" ")}"`);
 
     const commandProcess = spawn(command, args);
 
