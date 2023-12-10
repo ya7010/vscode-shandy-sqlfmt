@@ -37,3 +37,7 @@ You can configure shandy-sqlfmt to format SQL or Jinja-SQL on-save by enabling t
 | Command                         | Description                        |
 | ------------------------------- | ---------------------------------- |
 | shandy-sqlfmt: Format Workspace | Format all SQL files in workspace. |
+
+## License
+
+MIT
