@@ -15,6 +15,23 @@ Please install [shandy-sqlfmt](https://github.com/tconbeer/sqlfm) first.
 
 This extension will automatically detect the `sqlfmt` command in your workspace, and if can't find it, it will find it in your `$PATH`.
 
+#### Global install
+
+```sh
+pipx install shandy-sqlfmt[jinja]
+```
+
+#### Local install
+
+```sh
+-- Use your virtualenv tool
+cd workspace
+python -m venv .venv
+source .venv/bin/activate
+
+pip install shandy-sqlfmt[jinja]
+```
+
 ### Example configuration
 
 You can configure shandy-sqlfmt to format SQL or Jinja-SQL on-save by enabling the `editor.formatOnSave` action in `settings.json`, and setting shandy-sqlfmt as your default formatter.
