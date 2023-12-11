@@ -24,7 +24,7 @@ pipx install shandy-sqlfmt[jinja]
 #### Local install
 
 ```sh
--- Use your virtualenv tool
+# Use your virtualenv tool
 cd workspace
 python -m venv .venv
 source .venv/bin/activate
