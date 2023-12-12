@@ -25,6 +25,11 @@
     "onLanguage:sql",
     "onLanguage:jinja-sql"
   ],
+  "categories": [
+    "Other",
+    "Programming Languages",
+    "Formatters"
+  ],
   "contributes": {
     "commands": [
       {
