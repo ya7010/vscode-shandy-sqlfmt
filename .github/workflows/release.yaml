@@ -16,4 +16,4 @@ jobs:
           node-version: 18
       - run: npm ci
       - run: npm run esbuild
-      - run: npm run publish --pat ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
+      - run: npm run publish -- --pat ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
