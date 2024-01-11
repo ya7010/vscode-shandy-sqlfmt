@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { spawn } from "child_process";
 import { getInterpreterDetails } from "../common/python";
 import { getSqlFmtArgs, getSqlFmtPath } from "../common/settings";
-import { traceInfo, traceError, traceLog } from "../common/logging";
+import { traceError, traceInfo, traceLog } from "../common/logging";
 
 export class SqlfmtFormatProvider
   implements vscode.DocumentFormattingEditProvider
@@ -18,10 +18,14 @@ export class SqlfmtFormatProvider
   async formatFile(document: vscode.TextDocument): Promise<vscode.TextEdit[]> {
     traceInfo(`Formatting "${document.fileName}" file`);
 
-    await this.executeSqlfmt(
-      vscode.workspace.getWorkspaceFolder(document.uri),
-      [document.uri.fsPath]
-    );
+    try {
+      await this.executeSqlfmt(
+        vscode.workspace.getWorkspaceFolder(document.uri),
+        [document.uri.fsPath]
+      );
+    } catch (error) {
+      vscode.window.showErrorMessage("Failed to format file: " + error);
+    }
 
     return [];
   }
@@ -33,8 +37,11 @@ export class SqlfmtFormatProvider
     if (!workspaceFolder) {
       return;
     }
-
-    this.executeSqlfmt(workspaceFolder, [workspaceFolder.uri.fsPath]);
+    try {
+      this.executeSqlfmt(workspaceFolder, [workspaceFolder.uri.fsPath]);
+    } catch (error) {
+      vscode.window.showErrorMessage("Failed to format workspace: " + error);
+    }
   }
 
   private async executeSqlfmt(
@@ -53,35 +60,44 @@ export class SqlfmtFormatProvider
 
     traceLog(`Execute: "${[command, ...args].join(" ")}"`);
 
-    const commandProcess = spawn(command, args, {
-      cwd: workspaceFolder?.uri.fsPath,
+    return await new Promise((resolve, reject) => {
+      const commandProcess = spawn(command, args, {
+        cwd: workspaceFolder?.uri.fsPath,
+      });
+
+      if (commandProcess.pid) {
+        let stdoutBuffer = "";
+        let stderrBuffer = "";
+
+        commandProcess.stdout!.on(
+          "data",
+          (chunk) => (stdoutBuffer += chunk.toString())
+        );
+        commandProcess.stderr!.on(
+          "data",
+          (chunk) => (stderrBuffer += chunk.toString())
+        );
+
+        commandProcess.once("close", () => {
+          if (stdoutBuffer) {
+            traceLog(stdoutBuffer);
+          }
+          if (stderrBuffer) {
+            if (commandProcess.exitCode !== 0) {
+              traceError(stderrBuffer);
+              reject(stderrBuffer);
+            }
+
+            traceLog(stderrBuffer);
+            resolve({ success: true });
+          }
+        });
+
+        commandProcess.once("error", (error) => {
+          traceError(error);
+          reject(error);
+        });
+      }
     });
-
-    if (commandProcess.pid) {
-      let stdoutBuffer = "";
-      let stderrBuffer = "";
-
-      commandProcess.stdout!.on(
-        "data",
-        (chunk) => (stdoutBuffer += chunk.toString())
-      );
-      commandProcess.stderr!.on(
-        "data",
-        (chunk) => (stderrBuffer += chunk.toString())
-      );
-
-      commandProcess.once("close", () => {
-        if (stdoutBuffer) {
-          traceLog(stdoutBuffer);
-        }
-        if (stderrBuffer) {
-          traceLog(stderrBuffer);
-        }
-      });
-
-      commandProcess.once("error", (error) => {
-        traceError(error);
-      });
-    }
   }
 }
