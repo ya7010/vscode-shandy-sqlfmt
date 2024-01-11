@@ -36,9 +36,11 @@ export function getSqlFmtArgs(
   workspaceFolder?: vscode.WorkspaceFolder,
   interpreter?: string[]
 ): string[] {
-  const args =
+  const args = (
     vscode.workspace.getConfiguration("shandy-sqlfmt").get<string[]>("args") ??
-    [];
+    []
+  ).map((s) => s.toString());
+
   return resolveVariables(args, workspaceFolder, interpreter);
 }
 
