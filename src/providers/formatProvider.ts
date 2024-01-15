@@ -27,7 +27,13 @@ export class SqlfmtFormatProvider
       vscode.window.showErrorMessage("Failed to format file: " + error);
     }
 
-    return [];
+    // Replace All Document Text
+    const text = await vscode.workspace.fs.readFile(document.uri);
+    const range = document.validateRange(
+      new vscode.Range(0, 0, Number.MAX_VALUE, Number.MAX_VALUE)
+    );
+
+    return [vscode.TextEdit.replace(range, text.toString())];
   }
 
   async formatWorkspace(document: vscode.TextDocument) {
@@ -38,7 +44,7 @@ export class SqlfmtFormatProvider
       return;
     }
     try {
-      this.executeSqlfmt(workspaceFolder, [workspaceFolder.uri.fsPath]);
+      await this.executeSqlfmt(workspaceFolder, [workspaceFolder.uri.fsPath]);
     } catch (error) {
       vscode.window.showErrorMessage("Failed to format workspace: " + error);
     }
