@@ -1,7 +1,7 @@
 {
   "name": "vscode-shandy-sqlfmt",
   "displayName": "shandy-sqlfmt",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "%extension.description%",
   "icon": "images/icon.png",
   "main": "./out/extension.js",
