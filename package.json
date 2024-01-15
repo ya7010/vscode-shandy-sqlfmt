@@ -87,10 +87,12 @@
     "publish": "vsce publish"
   },
   "dependencies": {
-    "@vscode/python-extension": "^1.0.5"
+    "@vscode/python-extension": "^1.0.5",
+    "tmp-promise": "^3.0.3"
   },
   "devDependencies": {
     "@types/node": "^20.10.4",
+    "@types/tmp": "^0.2.6",
     "@types/vscode": "^1.63.0",
     "@typescript-eslint/eslint-plugin": "^6.13.2",
     "@typescript-eslint/parser": "^6.13.2",
