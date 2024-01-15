@@ -3,6 +3,7 @@ import { spawn } from "child_process";
 import { getInterpreterDetails } from "../common/python";
 import { getSqlFmtArgs, getSqlFmtPath } from "../common/settings";
 import { traceError, traceInfo, traceLog } from "../common/logging";
+import { file } from "tmp-promise";
 
 export class SqlfmtFormatProvider
   implements vscode.DocumentFormattingEditProvider
@@ -16,24 +17,42 @@ export class SqlfmtFormatProvider
   }
 
   async formatFile(document: vscode.TextDocument): Promise<vscode.TextEdit[]> {
+    const textEdits = [];
+
     traceInfo(`Formatting "${document.fileName}" file`);
+    const { path, cleanup } = await file({ postfix: ".sql" });
 
     try {
+      const tmpFileUri = vscode.Uri.file(path);
+      await vscode.workspace.fs.writeFile(
+        tmpFileUri,
+        new TextEncoder().encode(document.getText())
+      );
+
       await this.executeSqlfmt(
         vscode.workspace.getWorkspaceFolder(document.uri),
-        [document.uri.fsPath]
+        [tmpFileUri.fsPath]
+      );
+
+      const text = new TextDecoder().decode(
+        await vscode.workspace.fs.readFile(tmpFileUri)
+      );
+
+      textEdits.push(
+        vscode.TextEdit.replace(
+          document.validateRange(
+            new vscode.Range(0, 0, Number.MAX_VALUE, Number.MAX_VALUE)
+          ),
+          text.toString()
+        )
       );
     } catch (error) {
       vscode.window.showErrorMessage("Failed to format file: " + error);
+    } finally {
+      cleanup();
     }
 
-    // Replace All Document Text
-    const text = await vscode.workspace.fs.readFile(document.uri);
-    const range = document.validateRange(
-      new vscode.Range(0, 0, Number.MAX_VALUE, Number.MAX_VALUE)
-    );
-
-    return [vscode.TextEdit.replace(range, text.toString())];
+    return textEdits;
   }
 
   async formatWorkspace(document: vscode.TextDocument) {
