@@ -23,7 +23,8 @@
   ],
   "activationEvents": [
     "onLanguage:sql",
-    "onLanguage:jinja-sql"
+    "onLanguage:jinja-sql",
+    "onLanguage:snowflake-sql"
   ],
   "categories": [
     "Other",
