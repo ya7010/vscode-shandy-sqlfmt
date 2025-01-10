@@ -11,7 +11,7 @@ A Visual Studio Code extension for [shandy-sqlfmt](https://github.com/tconbeer/s
 
 ### Install shandy-sqlfmt
 
-Please install [shandy-sqlfmt](https://github.com/tconbeer/sqlfm) first.
+Please install [shandy-sqlfmt](https://github.com/tconbeer/sqlfmt) first.
 
 This extension will automatically detect the `sqlfmt` command in your workspace, and if can't find it, it will find it in your `$PATH`.
 
