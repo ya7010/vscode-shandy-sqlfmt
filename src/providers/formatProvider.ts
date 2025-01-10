@@ -75,7 +75,17 @@ export class SqlfmtFormatProvider
       workspaceFolder?.uri,
     );
 
-    const command = getSqlFmtPath(workspaceFolder, interpreterDetails?.path);
+    const [command, is_exist] = getSqlFmtPath(
+      workspaceFolder,
+      interpreterDetails?.path,
+    );
+    if (!is_exist) {
+      vscode.window.showErrorMessage(
+        `"${command}" is not found. Please install "sqlfmt" first.`,
+      );
+      return;
+    }
+
     const args = [
       ...getSqlFmtArgs(workspaceFolder, interpreterDetails?.path),
       ...commandArgs,
