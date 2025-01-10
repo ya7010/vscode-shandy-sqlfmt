@@ -23,8 +23,10 @@
   ],
   "activationEvents": [
     "onLanguage:sql",
-    "onLanguage:sqlite",
     "onLanguage:jinja-sql",
+    "onLanguage:sqlite",
+    "onLanguage:postgres",
+    "onLanguage:mysql",
     "onLanguage:snowflake-sql"
   ],
   "categories": [
