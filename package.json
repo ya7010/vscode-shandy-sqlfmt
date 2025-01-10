@@ -23,6 +23,7 @@
   ],
   "activationEvents": [
     "onLanguage:sql",
+    "onLanguage:sqlite",
     "onLanguage:jinja-sql",
     "onLanguage:snowflake-sql"
   ],
