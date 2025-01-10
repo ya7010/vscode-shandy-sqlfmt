@@ -5,7 +5,7 @@ import * as fs from "node:fs";
 export function getSqlFmtPath(
   workspaceFolder?: vscode.WorkspaceFolder,
   interpreter?: string[],
-): string {
+): [string, boolean] {
   let sqlfmtPath = vscode.workspace
     .getConfiguration("shandy-sqlfmt")
     .get<string | null>("path");
@@ -28,8 +28,16 @@ export function getSqlFmtPath(
     }
   }
 
-  // Fall back to just "sqlfmt" if we couldn't find it
-  return sqlfmtPath ?? "sqlfmt";
+  sqlfmtPath = sqlfmtPath ?? "sqlfmt";
+
+  let is_exist = true;
+  try {
+    fs.accessSync(sqlfmtPath, fs.constants.X_OK);
+  } catch (err) {
+    is_exist = false;
+  }
+
+  return [sqlfmtPath, is_exist];
 }
 
 export function getSqlFmtArgs(
