@@ -11,7 +11,7 @@ export async function activate(context: vscode.ExtensionContext) {
   traceInfo("✨ shandy-sqlfmt is now active! ✨");
 
   const formatProvider = new SqlfmtFormatProvider();
-  for (const language of ["sql", "jinja-sql"]) {
+  for (const language of ["sql", "jinja-sql", "snowflake-sql"]) {
     vscode.languages.registerDocumentFormattingEditProvider(
       { scheme: "file", language },
       formatProvider
