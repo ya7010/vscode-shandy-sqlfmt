@@ -2,6 +2,7 @@
 
 [![GitHub license](https://badgen.net/github/license/Naereen/Strapdown.js?style=flat-square)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE)
 [![Actions status](https://github.com/yassun7010/vscode-shandy-sqlfmt/workflows/CI/badge.svg)](https://github.com/yassun7010/vscode-shandy-sqlfmt/actions)
+[![Marketplace Version](https://vsmarketplacebadges.dev/version/yassun7010.vscode-shandy-sqlfmt.png?label=VS%20Code%20Marketplace&logo=visual-studio-code "Current Release")](https://marketplace.visualstudio.com/items?itemName=yassun7010.vscode-shandy-sqlfmt)
 
 A Visual Studio Code extension for [shandy-sqlfmt](https://github.com/tconbeer/sqlfmt). Available on the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=yassun7010.vscode-shandy-sqlfmt).
 
