@@ -81,7 +81,7 @@ export class SqlfmtFormatProvider
     );
     if (!is_exist) {
       vscode.window.showErrorMessage(
-        `"${command}" is not found. Please install "sqlfmt" first.`,
+        `"${command}" is not found. Please install [shandy-sqlfmt](https://github.com/tconbeer/sqlfmt) first.`,
       );
       return;
     }
