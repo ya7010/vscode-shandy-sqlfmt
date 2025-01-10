@@ -1,5 +1,5 @@
-import * as util from "util";
-import * as vscode from "vscode";
+import * as util from "node:util";
+import type * as vscode from "vscode";
 
 type Arguments = unknown[];
 class OutputChannelLogger {
@@ -28,7 +28,7 @@ class OutputChannelLogger {
 
 let channel: OutputChannelLogger | undefined;
 export function registerLogger(
-  logChannel: vscode.LogOutputChannel
+  logChannel: vscode.LogOutputChannel,
 ): vscode.Disposable {
   channel = new OutputChannelLogger(logChannel);
   return {

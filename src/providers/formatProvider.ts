@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { spawn } from "child_process";
+import { spawn } from "node:child_process";
 import { getInterpreterDetails } from "../common/python";
 import { getSqlFmtArgs, getSqlFmtPath } from "../common/settings";
 import { traceError, traceInfo, traceLog } from "../common/logging";
@@ -8,10 +8,8 @@ import { file } from "tmp-promise";
 export class SqlfmtFormatProvider
   implements vscode.DocumentFormattingEditProvider
 {
-  constructor() {}
-
   async provideDocumentFormattingEdits(
-    document: vscode.TextDocument
+    document: vscode.TextDocument,
   ): Promise<vscode.TextEdit[]> {
     return this.formatFile(document);
   }
@@ -26,28 +24,28 @@ export class SqlfmtFormatProvider
       const tmpFileUri = vscode.Uri.file(path);
       await vscode.workspace.fs.writeFile(
         tmpFileUri,
-        new TextEncoder().encode(document.getText())
+        new TextEncoder().encode(document.getText()),
       );
 
       await this.executeSqlfmt(
         vscode.workspace.getWorkspaceFolder(document.uri),
-        [tmpFileUri.fsPath]
+        [tmpFileUri.fsPath],
       );
 
       const text = new TextDecoder().decode(
-        await vscode.workspace.fs.readFile(tmpFileUri)
+        await vscode.workspace.fs.readFile(tmpFileUri),
       );
 
       textEdits.push(
         vscode.TextEdit.replace(
           document.validateRange(
-            new vscode.Range(0, 0, Number.MAX_VALUE, Number.MAX_VALUE)
+            new vscode.Range(0, 0, Number.MAX_VALUE, Number.MAX_VALUE),
           ),
-          text.toString()
-        )
+          text.toString(),
+        ),
       );
     } catch (error) {
-      vscode.window.showErrorMessage("Failed to format file: " + error);
+      vscode.window.showErrorMessage(`Failed to format file: ${error}`);
     } finally {
       cleanup();
     }
@@ -65,16 +63,16 @@ export class SqlfmtFormatProvider
     try {
       await this.executeSqlfmt(workspaceFolder, [workspaceFolder.uri.fsPath]);
     } catch (error) {
-      vscode.window.showErrorMessage("Failed to format workspace: " + error);
+      vscode.window.showErrorMessage(`Failed to format workspace: ${error}`);
     }
   }
 
   private async executeSqlfmt(
     workspaceFolder: vscode.WorkspaceFolder | undefined,
-    commandArgs: string[]
+    commandArgs: string[],
   ) {
     const interpreterDetails = await getInterpreterDetails(
-      workspaceFolder?.uri
+      workspaceFolder?.uri,
     );
 
     const command = getSqlFmtPath(workspaceFolder, interpreterDetails?.path);
@@ -94,14 +92,12 @@ export class SqlfmtFormatProvider
         let stdoutBuffer = "";
         let stderrBuffer = "";
 
-        commandProcess.stdout!.on(
-          "data",
-          (chunk) => (stdoutBuffer += chunk.toString())
-        );
-        commandProcess.stderr!.on(
-          "data",
-          (chunk) => (stderrBuffer += chunk.toString())
-        );
+        commandProcess.stdout?.on("data", (chunk) => {
+          stdoutBuffer += chunk.toString();
+        });
+        commandProcess.stderr?.on("data", (chunk) => {
+          stderrBuffer += chunk.toString();
+        });
 
         commandProcess.once("close", () => {
           if (stdoutBuffer) {

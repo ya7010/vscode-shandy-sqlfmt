@@ -81,8 +81,10 @@
     "esbuild": "npm run -S esbuild-base -- --sourcemap",
     "esbuild-watch": "npm run -S esbuild-base -- --sourcemap --watch",
     "tsc": "tsc --noEmit",
-    "lint": "eslint src --ext ts",
-    "fix": "eslint src --ext ts --fix",
+    "format": "biome format --fix ./src",
+    "format:check": "biome format ./src",
+    "lint": "biome lint --fix ./src",
+    "lint:check": "biome lint ./src",
     "test": "echo \"Error: no test specified\" && exit 1",
     "package": "vsce package",
     "publish": "vsce publish"
@@ -92,14 +94,11 @@
     "tmp-promise": "^3.0.3"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.9.4",
     "@types/node": "^20.10.4",
     "@types/tmp": "^0.2.6",
     "@types/vscode": "^1.63.0",
-    "@typescript-eslint/eslint-plugin": "^6.13.2",
-    "@typescript-eslint/parser": "^6.13.2",
     "esbuild": "^0.19.8",
-    "eslint": "^8.55.0",
-    "prettier": "^3.1.0",
     "rimraf": "^5.0.5",
     "typescript": "^5.3.3",
     "vsce": "^2.15.0"
