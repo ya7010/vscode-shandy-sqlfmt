@@ -14,19 +14,19 @@ export async function activate(context: vscode.ExtensionContext) {
   for (const language of ["sql", "jinja-sql", "snowflake-sql"]) {
     vscode.languages.registerDocumentFormattingEditProvider(
       { scheme: "file", language },
-      formatProvider
+      formatProvider,
     );
   }
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "shandy-sqlfmt.formatWorkspace",
-      async function () {
+      async () => {
         const document = vscode.window.activeTextEditor?.document;
         if (document) {
           await formatProvider.formatWorkspace(document);
         }
-      }
-    )
+      },
+    ),
   );
 }

@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { PythonExtension } from "@vscode/python-extension";
+import type { PythonExtension } from "@vscode/python-extension";
 
 export interface IInterpreterDetails {
   path?: string[];
@@ -27,11 +27,11 @@ async function getPythonExtensionAPI(): Promise<PythonExtension | undefined> {
 }
 
 export async function getInterpreterDetails(
-  resource?: vscode.Uri
+  resource?: vscode.Uri,
 ): Promise<IInterpreterDetails> {
   const api = await getPythonExtensionAPI();
   const environment = await api?.environments.resolveEnvironment(
-    api?.environments.getActiveEnvironmentPath(resource)
+    api?.environments.getActiveEnvironmentPath(resource),
   );
   if (environment?.executable.uri) {
     return { path: [environment?.executable.uri.fsPath], resource };

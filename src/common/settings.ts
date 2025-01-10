@@ -1,10 +1,10 @@
-import * as path from "path";
+import * as path from "node:path";
 import * as vscode from "vscode";
-import * as fs from "fs";
+import * as fs from "node:fs";
 
 export function getSqlFmtPath(
   workspaceFolder?: vscode.WorkspaceFolder,
-  interpreter?: string[]
+  interpreter?: string[],
 ): string {
   let sqlfmtPath = vscode.workspace
     .getConfiguration("shandy-sqlfmt")
@@ -15,7 +15,7 @@ export function getSqlFmtPath(
     sqlfmtPath = resolveVariables(
       [sqlfmtPath],
       workspaceFolder,
-      interpreter
+      interpreter,
     )[0];
   } else {
     // Try to find sqlfmt in the same directory as the Python interpreter
@@ -34,7 +34,7 @@ export function getSqlFmtPath(
 
 export function getSqlFmtArgs(
   workspaceFolder?: vscode.WorkspaceFolder,
-  interpreter?: string[]
+  interpreter?: string[],
 ): string[] {
   const args = (
     vscode.workspace.getConfiguration("shandy-sqlfmt").get<string[]>("args") ??
@@ -48,7 +48,7 @@ function resolveVariables(
   value: string[],
   workspace?: vscode.WorkspaceFolder,
   interpreter?: string[],
-  env?: NodeJS.ProcessEnv
+  env?: NodeJS.ProcessEnv,
 ): string[] {
   const substitutions = new Map<string, string>();
   const home = process.env.HOME || process.env.USERPROFILE;
@@ -59,15 +59,15 @@ function resolveVariables(
     substitutions.set("${workspaceFolder}", workspace.uri.fsPath);
   }
   substitutions.set("${cwd}", process.cwd());
-  (vscode.workspace.workspaceFolders ?? []).forEach((w) => {
-    substitutions.set("${workspaceFolder:" + w.name + "}", w.uri.fsPath);
-  });
+  for (const w of vscode.workspace.workspaceFolders ?? []) {
+    substitutions.set(`\${workspaceFolder:${w.name}}`, w.uri.fsPath);
+  }
 
-  env = env || process.env;
-  if (env) {
-    for (const [key, value] of Object.entries(env)) {
+  const environment = env || process.env;
+  if (environment) {
+    for (const [key, value] of Object.entries(environment)) {
       if (value) {
-        substitutions.set("${env:" + key + "}", value);
+        substitutions.set(`\${env:${key}}`, value);
       }
     }
   }
@@ -82,9 +82,10 @@ function resolveVariables(
   }
 
   return modifiedValue.map((s) => {
+    let modifiedString = s;
     for (const [key, value] of substitutions) {
-      s = s.replace(key, value);
+      modifiedString = modifiedString.replace(key, value);
     }
-    return s;
+    return modifiedString;
   });
 }
