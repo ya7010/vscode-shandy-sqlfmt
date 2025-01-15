@@ -1,6 +1,8 @@
 import * as path from "node:path";
 import * as vscode from "vscode";
 import * as fs from "node:fs";
+import { execSync } from "node:child_process";
+import { traceError } from "./logging";
 
 export function getSqlFmtPath(
   workspaceFolder?: vscode.WorkspaceFolder,
@@ -32,8 +34,11 @@ export function getSqlFmtPath(
 
   let is_exist = true;
   try {
-    fs.accessSync(sqlfmtPath, fs.constants.X_OK);
+    execSync(`${sqlfmtPath} --version`, {
+      stdio: "ignore",
+    });
   } catch (err) {
+    traceError(err);
     is_exist = false;
   }
 
