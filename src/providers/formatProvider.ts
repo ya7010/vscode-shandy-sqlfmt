@@ -42,7 +42,8 @@ export class SqlfmtFormatProvider
         ),
       );
     } catch (error) {
-      vscode.window.showErrorMessage(`${error}`);
+      const message = error instanceof Error ? error.message : `${error}`;
+      vscode.window.showErrorMessage(message);
     } finally {
       cleanup();
     }
@@ -60,7 +61,8 @@ export class SqlfmtFormatProvider
     try {
       await this.executeSqlfmt(workspaceFolder, [workspaceFolder.uri.fsPath]);
     } catch (error) {
-      vscode.window.showErrorMessage(`${error}`);
+      const message = error instanceof Error ? error.message : `${error}`;
+      vscode.window.showErrorMessage(message);
     }
   }
 
