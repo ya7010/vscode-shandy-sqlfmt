@@ -3,7 +3,8 @@ import { spawn } from "node:child_process";
 import { getInterpreterDetails } from "../common/python";
 import { getSqlFmtArgs, getSqlFmtPath } from "../common/settings";
 import { traceError, traceInfo, traceLog } from "../common/logging";
-import { file } from "tmp-promise";
+import { file as tmpfile } from "tmp-promise";
+import { SqlfmtNotInstalled } from "../error";
 
 export class SqlfmtFormatProvider
   implements vscode.DocumentFormattingEditProvider
@@ -15,25 +16,21 @@ export class SqlfmtFormatProvider
   }
 
   async formatFile(document: vscode.TextDocument): Promise<vscode.TextEdit[]> {
-    const textEdits = [];
+    const textEdits: vscode.TextEdit[] = [];
 
     traceInfo(`Formatting "${document.fileName}" file`);
-    const { path, cleanup } = await file({ postfix: ".sql" });
+    const { path: tmpFilePath, cleanup } = await tmpfile({ postfix: ".sql" });
 
     try {
-      const tmpFileUri = vscode.Uri.file(path);
+      const tmpFileUri = vscode.Uri.file(tmpFilePath);
       await vscode.workspace.fs.writeFile(
         tmpFileUri,
         new TextEncoder().encode(document.getText()),
       );
 
-      await this.executeSqlfmt(
+      const text = await this.getFormatedSQL(
         vscode.workspace.getWorkspaceFolder(document.uri),
-        [tmpFileUri.fsPath],
-      );
-
-      const text = new TextDecoder().decode(
-        await vscode.workspace.fs.readFile(tmpFileUri),
+        tmpFilePath,
       );
 
       textEdits.push(
@@ -45,7 +42,7 @@ export class SqlfmtFormatProvider
         ),
       );
     } catch (error) {
-      vscode.window.showErrorMessage(`Failed to format file: ${error}`);
+      vscode.window.showErrorMessage(`${error}`);
     } finally {
       cleanup();
     }
@@ -63,7 +60,7 @@ export class SqlfmtFormatProvider
     try {
       await this.executeSqlfmt(workspaceFolder, [workspaceFolder.uri.fsPath]);
     } catch (error) {
-      vscode.window.showErrorMessage(`Failed to format workspace: ${error}`);
+      vscode.window.showErrorMessage(`${error}`);
     }
   }
 
@@ -80,10 +77,7 @@ export class SqlfmtFormatProvider
       interpreterDetails?.path,
     );
     if (!is_exist) {
-      vscode.window.showErrorMessage(
-        `"${command}" is not found. Please install [shandy-sqlfmt](https://github.com/tconbeer/sqlfmt) first.`,
-      );
-      return;
+      throw new SqlfmtNotInstalled(command);
     }
 
     const args = [
@@ -121,6 +115,67 @@ export class SqlfmtFormatProvider
 
             traceLog(stderrBuffer);
             resolve({ success: true });
+          }
+        });
+
+        commandProcess.once("error", (error) => {
+          traceError(error);
+          reject(error);
+        });
+      }
+    });
+  }
+
+  private async getFormatedSQL(
+    workspaceFolder: vscode.WorkspaceFolder | undefined,
+    tempFilePath: string,
+  ): Promise<string> {
+    const interpreterDetails = await getInterpreterDetails(
+      workspaceFolder?.uri,
+    );
+
+    const [command, is_exist] = getSqlFmtPath(
+      workspaceFolder,
+      interpreterDetails?.path,
+    );
+    if (!is_exist) {
+      throw new SqlfmtNotInstalled(command);
+    }
+
+    const args = [
+      "-",
+      ...getSqlFmtArgs(workspaceFolder, interpreterDetails?.path),
+    ];
+
+    traceLog(
+      `Execute: "cat ${tempFilePath} | ${[command, ...args].join(" ")}"`,
+    );
+
+    return await new Promise((resolve, reject) => {
+      const commandProcess = spawn(command, args, {
+        cwd: workspaceFolder?.uri.fsPath,
+      });
+
+      const inputProcess = spawn("cat", [tempFilePath]);
+
+      inputProcess.stdout?.pipe(commandProcess.stdin);
+
+      if (commandProcess.pid) {
+        let stdoutBuffer = "";
+        let stderrBuffer = "";
+
+        commandProcess.stdout?.on("data", (chunk) => {
+          stdoutBuffer += chunk.toString();
+        });
+        commandProcess.stderr?.on("data", (chunk) => {
+          stderrBuffer += chunk.toString();
+        });
+
+        commandProcess.once("close", (code) => {
+          if (code === 0) {
+            resolve(stdoutBuffer);
+          } else {
+            reject(new Error(stderrBuffer));
           }
         });
 
