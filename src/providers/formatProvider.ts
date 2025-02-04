@@ -175,6 +175,9 @@ export class SqlfmtFormatProvider
 
         commandProcess.once("close", (code) => {
           if (code === 0) {
+            if (stdoutBuffer.endsWith("\n")) {
+              stdoutBuffer = stdoutBuffer.slice(0, -1);
+            }
             resolve(stdoutBuffer);
           } else {
             reject(new Error(stderrBuffer));
