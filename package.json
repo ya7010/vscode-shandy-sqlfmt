@@ -1,7 +1,7 @@
 {
   "name": "vscode-shandy-sqlfmt",
   "displayName": "shandy-sqlfmt",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "%extension.description%",
   "icon": "images/icon.png",
   "main": "./out/extension.js",
@@ -79,6 +79,7 @@
     ]
   },
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "watch": "rimraf out && tsc -watch -p ./",
     "esbuild-base": "rimraf out && esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --keep-names --platform=node",
     "esbuild": "npm run -S esbuild-base -- --sourcemap",
