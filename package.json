@@ -89,8 +89,8 @@
     "lint": "biome lint --fix ./src",
     "lint:check": "biome lint ./src",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "package": "vsce package",
-    "publish": "vsce publish"
+    "package": "npx @vscode/vsce package",
+    "publish": "npx @vscode/vsce publish"
   },
   "dependencies": {
     "@vscode/python-extension": "^1.0.5",
@@ -103,7 +103,6 @@
     "@types/vscode": "^1.63.0",
     "esbuild": "^0.19.8",
     "rimraf": "^5.0.5",
-    "typescript": "^5.3.3",
-    "vsce": "^2.15.0"
+    "typescript": "^5.3.3"
   }
 }
