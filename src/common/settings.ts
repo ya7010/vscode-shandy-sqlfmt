@@ -2,7 +2,7 @@ import * as path from "node:path";
 import * as vscode from "vscode";
 import * as fs from "node:fs";
 import { execSync } from "node:child_process";
-import { traceError } from "./logging";
+import { traceError, traceInfo } from "./logging";
 
 export function getSqlFmtPath(
   workspaceFolder?: vscode.WorkspaceFolder,
@@ -32,17 +32,29 @@ export function getSqlFmtPath(
 
   sqlfmtPath = sqlfmtPath ?? "sqlfmt";
 
+  // Detailed validation of executable file before execution
+  const [resolvedPath, isExecutable] = validateExecutablePath(sqlfmtPath);
+
+  if (!isExecutable) {
+    traceError(
+      `sqlfmt executable not found or not executable: ${resolvedPath}`,
+    );
+    return [resolvedPath, false];
+  }
+
+  // Final validation by checking version to ensure executability
   let is_exist = true;
   try {
-    execSync(`${sqlfmtPath} --version`, {
+    execSync(`${resolvedPath} --version`, {
       stdio: "ignore",
     });
+    traceInfo(`sqlfmt executable found and working: ${resolvedPath}`);
   } catch (err) {
     traceError(err);
     is_exist = false;
   }
 
-  return [sqlfmtPath, is_exist];
+  return [resolvedPath, is_exist];
 }
 
 export function getSqlFmtArgs(
@@ -55,6 +67,73 @@ export function getSqlFmtArgs(
   ).map((s) => s.toString());
 
   return resolveVariables(args, workspaceFolder, interpreter);
+}
+
+/**
+ * Validates executable file path and checks if it's executable
+ * Handles both absolute/relative paths and command names (searched in PATH)
+ * @param executablePath Path to the executable file to validate
+ * @returns [Resolved path, Whether the file is executable]
+ */
+function validateExecutablePath(executablePath: string): [string, boolean] {
+  // If it's a command name (no path separators), try to find it in PATH
+  if (!executablePath.includes(path.sep)) {
+    try {
+      // Use 'which' command to find the executable in PATH
+      const whichCommand = process.platform === "win32" ? "where" : "which";
+      const resolvedPath = execSync(`${whichCommand} ${executablePath}`, {
+        encoding: "utf8",
+        stdio: "pipe",
+      })
+        .trim()
+        .split("\n")[0];
+
+      if (resolvedPath) {
+        traceInfo(`Found executable in PATH: ${resolvedPath}`);
+        return validateFileAtPath(resolvedPath);
+      }
+    } catch (error) {
+      traceError(`Command not found in PATH: ${executablePath}`);
+      return [executablePath, false];
+    }
+  }
+
+  // For absolute or relative paths, resolve and validate
+  const normalizedPath = path.resolve(executablePath);
+  return validateFileAtPath(normalizedPath);
+}
+
+/**
+ * Validates a file at a specific path
+ * @param filePath Absolute path to the file to validate
+ * @returns [Resolved path, Whether the file is executable]
+ */
+function validateFileAtPath(filePath: string): [string, boolean] {
+  // Check if file exists
+  if (!fs.existsSync(filePath)) {
+    traceError(`Executable file does not exist: ${filePath}`);
+    return [filePath, false];
+  }
+
+  // Check if it's a file (not a directory)
+  const stats = fs.statSync(filePath);
+  if (!stats.isFile()) {
+    traceError(`Path is not a file: ${filePath}`);
+    return [filePath, false];
+  }
+
+  // Check execution permissions (Unix-like systems)
+  if (process.platform !== "win32") {
+    const mode = stats.mode;
+    const isExecutable = !!(mode & 0o111); // Check execution permission bits
+    if (!isExecutable) {
+      traceError(`File is not executable: ${filePath}`);
+      return [filePath, false];
+    }
+  }
+
+  traceInfo(`Executable file validated: ${filePath}`);
+  return [filePath, true];
 }
 
 function resolveVariables(
