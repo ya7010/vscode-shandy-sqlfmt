@@ -79,7 +79,6 @@
     ]
   },
   "scripts": {
-    "preinstall": "npx only-allow pnpm",
     "watch": "rimraf out && tsc -watch -p ./",
     "esbuild-base": "rimraf out && esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --keep-names --platform=node",
     "esbuild": "npm run -S esbuild-base -- --sourcemap",
